@@ -60,7 +60,6 @@ public class Basket {
         try (BufferedWriter out = new BufferedWriter(new FileWriter(textFile))) {
             for (int i = 0; i < products.length; i++) {
                 out.write(products[i] + " " + basket[i] + " " + price[i] + "\r\n");
-
             }
 
         } catch (IOException e) {
