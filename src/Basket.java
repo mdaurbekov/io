@@ -7,7 +7,8 @@ public class Basket implements Serializable{
 
 
     public Basket(String[] products, int[] price) {
-        Basket basket1 = loadFromTxtFile(new File("basket.txt"));
+        Basket basket1 = loadFromBinFile(new File("basket.bin"));
+       // Basket basket1 = loadFromTxtFile(new File("basket.txt"));
         if (basket1 != null) {
             this.products = basket1.getProducts();
             this.price = basket1.getPrice();
@@ -79,8 +80,13 @@ public class Basket implements Serializable{
     }
 
     public static Basket loadFromBinFile(File file) {
-
-        return null;
+        Basket rezult;
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file))) {
+            rezult = (Basket) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            rezult = null;
+        }
+        return rezult;
     }
     public static Basket loadFromTxtFile(File textFile) {
         Basket rezult = null;
