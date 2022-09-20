@@ -7,10 +7,10 @@ import java.util.Scanner;
 
 class Main {
 
-    public static void saveBasketJson(Basket basket) {
+    public static void saveBasketJson(Basket basket, Config config) {
         Gson gson = new GsonBuilder().create();
 
-        try (FileWriter file = new FileWriter("/file.json")) {
+        try (FileWriter file = new FileWriter(config.getFileNameSave())) {
             file.write(gson.toJson(basket));
             file.flush();
         } catch (IOException e) {
@@ -19,11 +19,11 @@ class Main {
 
     }
 
-    public static Basket loadBasketJson(String[] products, int[] price) {
+    public static Basket loadBasketJson(String[] products, int[] price, Config config) {
         Basket basket = null;
 
         Gson gson = new GsonBuilder().create();
-        File file = new File("/file.json");
+        File file = new File(config.getFileNameLoad());
         String productsJson;
         if (file.exists()) {
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -40,7 +40,7 @@ class Main {
                     + "\"price\":" + Arrays.toString(price) + ","
                     + "\"basket\":" + basketArray
                     + "}";
-            System.out.println(productsJson);
+
             basket = gson.fromJson(productsJson, Basket.class);
 
         }
@@ -48,14 +48,22 @@ class Main {
         return basket;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static Config loadConfig() {
+        return new Config();
+    }
 
+    public static void main(String[] args) throws Exception {
+        Config config = loadConfig();
         String[] products = {"Молоко", "Гречка", "Пшеница", "Масло"};
         int[] price = {50, 68, 45, 120};
         ClientLog clientLog = new ClientLog();
+        Basket basket = null;
+        if (config.isLoad() && "json".equals(config.getFormatLoad())) {
+            basket = loadBasketJson(products, price, config);
+        } else {
+            basket = new Basket(products, price, config);
+        }
 
-        // Basket basket = new Basket(products, price);
-        Basket basket = loadBasketJson(products, price);
         while (true) {
 
             Scanner scanner = new Scanner(System.in);
@@ -68,9 +76,16 @@ class Main {
             String input = scanner.nextLine();
             if (input.equals("end")) {
 
-                clientLog.exportAsCSV(new File("/file.csv"));
-                saveBasketJson(basket);
-                //basket.saveTxt(new File("basket.txt"));
+                if (config.isLog()) {
+                    clientLog.exportAsCSV(new File("/" + config.getFileNameLog()));
+                }
+                if (config.isSave() && "txt".equals(config.getFormatSave())) {
+                    basket.saveTxt(new File(config.getFileNameSave()));
+                }
+                if (config.isSave() && "json".equals(config.getFormatSave())) {
+                    saveBasketJson(basket, config);
+                }
+
                 System.out.println("Программа завершена!");
                 break;
             }

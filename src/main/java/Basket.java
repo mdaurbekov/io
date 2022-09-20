@@ -6,16 +6,17 @@ public class Basket {
     private int[] basket;
 
 
-    public Basket(String[] products, int[] price) {
-        Basket basket1 = loadFromTxtFile(new File("basket.txt"));
-        if (basket1 != null) {
-            this.products = basket1.getProducts();
-            this.price = basket1.getPrice();
-            this.basket = basket1.getBasket();
-        } else {
+    public Basket(String[] products, int[] price, Config config) {
+
+        if (!config.isLoad()) {
             this.products = products;
             this.price = price;
             this.basket = new int[products.length];
+        } else {
+            Basket tmpBasket = loadFromTxtFile(new File(config.getFileNameLoad()));
+            this.products = tmpBasket.getProducts();
+            this.price = tmpBasket.getPrice();
+            this.basket = tmpBasket.getBasket();
         }
     }
 
